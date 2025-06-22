@@ -34,77 +34,67 @@ This project automatically notifies you by email whenever an EC2 instance is **s
 
 1. Go to **AWS SNS > Topics > Create Topic**
    - Type: `Standard`
-   - Name: `EC2StateChangeTopic`
+   - Name: `<Topic_name>`
 
 2. After creating, click **Create Subscription**
    - Protocol: `Email`
    - Endpoint: _your email address_
 
 3. **Confirm the email subscription** from your inbox
+![Subscription](https://github.com/user-attachments/assets/624eb94d-8a60-487e-ab4b-6b7d4e49aefe)
+![Topics](https://github.com/user-attachments/assets/a1d89cf9-22b0-483c-b277-71f3ef124c35)
+
+---
+---
+### 2. IAM Role for Lambda
+
+![IAM_Role](https://github.com/user-attachments/assets/02e5069b-394c-4b35-bb53-ea33a17977d6)
 
 ---
 
-### 2. IAM Role for Lambda
+---
 
-Create a role named `LambdaEC2MonitorRole` with the following permissions:
+### 3. Create Lambda Function
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "sns:Publish",
-        "ec2:DescribeInstances"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-### 3. Lambda Function Code
-Create a Lambda function named EC2StateChangeNotifier.
+Create a Lambda function r.
 
 Runtime: Python 3.x
 
-IAM Role: LambdaEC2MonitorRole
+IAM Role: <IAM RoleName>
 
 Environment Variable:
 
 Key: TOPIC_ARN
 
 Value: your SNS topic ARN
+![lambdafn](https://github.com/user-attachments/assets/0cebd1af-a21e-40b2-b25e-e804a15e0f27)
+
+---
+
+---
 
 ### 4. Set Up EventBridge Rule
 Go to Amazon EventBridge > Rules > Create Rule
 
-Rule Name: EC2StateChangeMonitor
+Rule Name: <Rulename>
 
 Event Pattern:
 
-json
-Copy
-Edit
-{
   "source": ["aws.ec2"],
   "detail-type": ["EC2 Instance State-change Notification"],
   "detail": {
-    "state": ["running", "stopped"]
-  }
-}
-Target: Select the EC2StateChangeNotifier Lambda function
+  "state": ["running", "stopped"]
 
-### 4. Set Up EventBridge Rule
-Go to Amazon EventBridge > Rules > Create Rule
+Target: Select the Lambda function
+![EventBridge_rule_source](https://github.com/user-attachments/assets/a97a1bfc-8336-4e33-8f10-9dea7c7fe1e8)
 
-Rule Name: EC2StateChangeMonitor
+---
 
-Event Pattern:
-Target: Select the EC2StateChangeNotifier Lambda function
+---
 
-###Testing
-Start or stop any EC2 instance
+### 5. Testing
+- Start or stop any EC2 instance
+- Check your email for a message.
+- ![logs](https://github.com/user-attachments/assets/6eb57806-ccb9-4e6d-a710-012977e70403)
+- ![emailNotification](https://github.com/user-attachments/assets/99e0be1f-674b-4399-aba7-ad502ffc01c7)
 
-Wait a few seconds
-
-Check your email for a message.
